@@ -135,7 +135,7 @@ def upload_file(request):
             generate_rsa_key_pair(privatekey_name_with_pem,publickey_name_with_pem)
             # return true
 
-            file_name_with_enc=filename_without_extension+'.enc'
+            file_name_with_enc=filename_without_extension+'_encrypted'+'.enc'
             # print(file_name_with_enc,'----------------------------')
             # print(publickey_name_with_pem)
 
@@ -171,6 +171,7 @@ def upload_file(request):
                 # with open(uploaded_file, 'rb') as file:
                 #     file_data = file.read()
                 # ciphertext, tag = cipher_aes.encrypt_and_digest(file_data)
+                
                 vpro=User.objects.get(id=tem)
                 if vpro:
                     # Save the uploaded file to the model associated with the user
@@ -223,7 +224,7 @@ def decrypt(request):
                 # print(filename_without_extension,'-----')
                 # return True
 
-                output_file_name = filename_without_extension+data.file_extension_name
+                output_file_name = filename_without_extension+'_decrypted'+data.file_extension_name
 
 
                 input_file_path = data.file.path  # Get the actual file path

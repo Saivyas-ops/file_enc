@@ -72,9 +72,7 @@ body {
     cursor: pointer;
   }
   
-  input[type="file"] {
-    display: none;
-  }
+ 
   
   .password {
     margin-top: 20px;

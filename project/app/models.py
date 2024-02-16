@@ -54,10 +54,16 @@ class EncryptedFile(models.Model):
             else:
             # Encrypt the file content using the generated key and algorithm
                 encrypted_content = encrypt_file(file_content, key, self.algorith)
+            
+                base_filename, file_extension = os.path.splitext(self.file.name)
+                encrypted_filename = f"{base_filename}_encrypted{file_extension}"
+                encrypted_file_path = os.path.join('uploads', encrypted_filename)
 
             # Save the encrypted content back to the file
-                with open(self.file.path, 'wb') as file:
+                with open(encrypted_file_path, 'wb') as file:
                     file.write(encrypted_content)
+
+                self.file.name = encrypted_filename
 
         super().save(*args, **kwargs)
 
@@ -105,12 +111,22 @@ class DecryptionRequest(models.Model):
             # Decrypt the file content using the generated key and algorithm
                 decrypted_content = decrypt_file(file_content, key, self.algorith)
 
+                filename, extension = os.path.splitext(self.uploaded_file.name)
+
+            # Construct the new filename for the decrypted file
+                decrypted_filename = f"{filename}_decrypted{extension}"
+                decrypted_file_path = os.path.join('uploads', decrypted_filename)
+            
+
+
             # Use a temporary file for writing the decrypted content
                 with tempfile.NamedTemporaryFile(delete=False) as temp_file:
                     temp_file.write(decrypted_content)
 
             # Replace the original file with the decrypted content
-                shutil.move(temp_file.name, self.uploaded_file.path)
+                shutil.move(temp_file.name, decrypted_file_path)
+
+                self.uploaded_file.name = decrypted_filename
 
         super().save(*args, **kwargs)
     
