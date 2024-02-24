@@ -281,6 +281,7 @@
     <button class="tablink" onclick="openPage('Encryption', this, '#777')" id="defaultOpen">Encryption</button>
     <button class="tablink" onclick="openPage('Decryption', this, '#777')">Decryption</button>
   </div>
+
   <form action="upload" enctype="multipart/form-data" method="post">
     {% csrf_token %}
   <div id="Encryption" class="tabcontent">
@@ -290,27 +291,30 @@
           <h2>Encryption</h2>
           <div class="file-upload">
             <p>Choose files to encrypt</p>
-            <label for="file-upload">  
+            <label for="file-upload">
 
             </label>
-              <input type="file" id="file-upload" name="file">
+              <input type="file" id="file-upload" name="file" required>
           </div>
           <div class="encrypt_algo_selection">
-            <select name="algorith" id="algorith" style="height: 30px;width: 150px;margin-top: 10px;">
+            <select name="algorith" id="algorith" style="height: 30px;width: 150px;margin-top: 10px;" required>
               <option value="">Choose Algorithm</option>
               <option value="hashes.SHA256">SHA256</option>
               <option value="RSA">RSA</option>
               <option value="AES">AES</option>
           </select>
+          <div id="rsa-disclaimer" style="display: none; background-color: #f5f5f5; padding: 10px; border-radius: 5px; margin-top: 10px; color: red;">
+            <p><b>Warning:</b> Choosing the RSA algorithm for encryption will result in files that are not compatible with other platforms. This means you will only be able to decrypt the files on the same device where you encrypted them. If you need cross-platform compatibility, please choose a different algorithm.</p>
+          </div>
           </div>
 
           <div class="encrypt_password" style="margin-top: 30px;">
             <label for="password">Enter a password:</label>
-            <input type="password" id="password" name="password">
+            <input type="password" id="password" name="password" required>
           </div>
           <div class="d-flex">
 
-            <button id="encrypt_button">Encrypt files</button>
+            <button id="encrypt_button" class="button" disabled>Encrypt files</button>
           </form>
           <form action="select">
             <button type="submit">Encrypted Files</button>
@@ -318,24 +322,7 @@
         </div>
 
 
-          <!-- <div id="download_encrypt_popup" >
-            
-            <div class="popup-content">
-                <h1 style="color:green;">
-                      Download File Below
-                  </h1>
-                <p>This is a popup box!</p>
-                <a href="select"><button id="">
-                      Download 
-                  </button></a>
-                  {% for i in encrypted_files %}
-                  <li><a href="{% url 'download_file' encrypted_file.id %}">{{ i.file.name }}</a></li>
-                  {% endfor %}
-            </div>
-        </div> -->
-
-
-        </section>
+          </section>
       </main>
     </div>
   </div>
@@ -353,18 +340,15 @@
           <label for="file-upload">
             
           </label>
-          <select  name="file">
-            <option selected disabled>Select file to Decrypt</option>
+          <select  name="file" id="file_select" required> <option selected disabled>Select file to Decrypt</option>
             {% for a in data %}
             <option value="{{a.id}}">{{a.file}}</option>
             {% endfor %}
           </select>
-          <!-- <input type="file" id="file-upload" name="file"> -->
         </div>
     
-        <!-- <input type="file" id="files" multiple> -->
         <div class="decrypt_algo_selection">  
-          <select name="algorithm" id="algorithm" style="height: 30px;width: 150px;margin-top: 10px;">
+          <select name="algorithm" id="algorithm" style="height: 30px;width: 150px;margin-top: 10px;" required>
             <option value="">Choose Algorithm</option>
             <option value="hashes.SHA256">SHA256</option>
             <option value="RSA">RSA</option>
@@ -373,37 +357,70 @@
         </div>
         <div style="margin-top: 30px;">
           <label for="password">Enter the decryption password:</label>
-          <input type="password" id="password" name="password">
+          <input type="password" id="password" name="password" required>
         </div>
 
         <div class="d-flex">
 
-          <button id="decrypt_button" class="button">Decrypt files</button>
-        </form>
+          <button id="decrypt_button" class="button" disabled>Decrypt files</button> </form>
         <form action="select2">
           <button type="submit">Decrypted Files</button>
         </form>
       </div>
 
-        <!-- <div id="download_decrypt_popup" class="popup">
-          <div class="popup-content">
-              <h1 style="color:green;">
-                    Download !!!!
-                </h1>
-              <p>This is a popup box!</p>
-              <button id="download_decrypt_file">
-                    Download
-                </button>
-          </div>
-      </div> -->
-      </section>
+        </section>
       </main>
     </div>
   </div>
 
 
-
   <script src="{% static 'unjs.js' %}"></script>
+
+  <script>
+    const algorithSelect = document.getElementById('algorith');
+    const rsaDisclaimer = document.getElementById('rsa-disclaimer');
+  
+    algorithSelect.addEventListener('change', function() {
+      if (this.value === 'RSA') {
+        rsaDisclaimer.style.display = 'block';
+      } else {
+        rsaDisclaimer.style.display = 'none';
+      }
+    });
+  </script>
+
+  <script>
+    const fileSelect = document.getElementById('file_select');
+    const decryptButton = document.getElementById('decrypt_button');
+  
+    fileSelect.addEventListener('change', () => {
+      decryptButton.disabled = fileSelect.value === '';
+    });
+  </script>
+
+
+    <script>
+      const fileUpload = document.getElementById('file-upload');
+      const algorithmSelect = document.getElementById('algorith');
+      const passwordInput = document.getElementById('password');
+      const encryptButton = document.getElementById('encrypt_button');
+    
+      function updateButtonState() {
+        // Check if all required fields are valid and have a value
+        const isValid = fileUpload.value && algorithmSelect.value && passwordInput.value;
+        encryptButton.disabled = !isValid;
+      }
+    
+      // Event listeners to trigger the button state update
+      fileUpload.addEventListener('change', updateButtonState);
+      algorithmSelect.addEventListener('change', updateButtonState);
+      passwordInput.addEventListener('input', updateButtonState);
+    
+      // Initial check on page load
+      updateButtonState();
+    </script>
+    
+
 </body>
 
 </html>

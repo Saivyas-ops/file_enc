@@ -148,6 +148,8 @@ def upload_file(request):
 
             encrypt_file_rsa(uploaded_file,file_name_with_enc,publickey_name_with_pem)
 
+            
+
             if uploaded_file:  # Check if a file was uploaded
                 # Retrieve the user from the session
                 # with open(uploaded_file, 'rb') as file:
